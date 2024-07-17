@@ -193,7 +193,6 @@ class ClipAlerts(Extension):
     async def on_startup(self):
         self.task.start()
         self.logger.info(f"clips cog logged in as {self._bot.user.username}")
-        self.logger.info(f"total shards: {self._bot.total_shards}")
         self.logger.info(f"shard id: {self.SHARD_ID}")
         self.logger.info(f"my guilds: {len(self._bot.guilds)}")
         self.logger.info("--------------")
