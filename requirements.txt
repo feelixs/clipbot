@@ -1,0 +1,4 @@
+discord-py-interactions
+aiohttp
+aiomysql
+mysql-connector-python
