@@ -6,7 +6,7 @@ from asyncio import gather
 import aiohttp
 from src.misc.twitch import TwitchAPI, TwitchTools
 from time import time
-from src.env import TwitchCreds
+from src.env import TwitchCreds, LOG_PATH
 import logging
 import os
 
@@ -25,12 +25,12 @@ class ClipAlerts(Extension):
         self._db = kwargs['db']
         self._twitchApi = TwitchAPI(key=TwitchCreds.id, secret=TwitchCreds.secret,
                                     logger=self.logger,
-                                    log_path=os.getenv('TWITCH_API_REMAINING_LOG'),
+                                    log_path=LOG_PATH,
                                     log_name="twitch-api-clips-usage-shard" + str(self.SHARD_ID) + ".log")
         self.twitch_tools = TwitchTools(self._twitchApi)
         self.discord_tools = kwargs['discordtools']
         self.discord_misc = ClipTasks(bot, self._db, self.logger, self.twitch_tools,
-                                      log_path=os.getenv('TWITCH_API_REMAINING_LOG'),
+                                      log_path=LOG_PATH,
                                       log_name="twitch-api-clips-usage-shard-" + str(self.SHARD_ID) + ".log")
 
         try:

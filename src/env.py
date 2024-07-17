@@ -1,6 +1,7 @@
 # edit your system environment variables to include the following, or hardcode them here
 import os
 
+LOG_PATH = os.path.dirname(os.path.abspath(__file__))
 
 token = os.getenv("CLYPPY_TOKEN")  # discord bot token
 
