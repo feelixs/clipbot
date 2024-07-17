@@ -2,7 +2,7 @@ from src.misc.database.connection import PooledConnection
 from interactions.models.discord.guild import Guild
 from src.env import DbCredentials
 from datetime import datetime, timezone
-from typing import Union
+from typing import Union, Tuple
 import logging
 
 
@@ -18,6 +18,18 @@ class Database:
     async def connect(self, loop):
         self.logger.info('connecting to database...')
         await self.cnx.connect(loop)
+
+    async def add_guild(self, guild: Union[Guild, Tuple[int, str]]):
+        if isinstance(guild, Guild):
+            name = guild.name
+            gid = int(guild.id)
+        else:
+            name = guild[1]
+            gid = guild[0]
+        stored = await self.select_where_eq("guilds", "guild_id", "guild_id", gid)
+        if stored is None:  # doesn't exist in the db
+            formatted_name = name.replace("'", "")
+            await self.insert_into("guilds", int(guild.id), formatted_name)
 
     async def insert_into(self, table, row, what):
         """Can only run on the 'key' value of a table"""
