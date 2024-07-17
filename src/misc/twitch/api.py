@@ -20,8 +20,8 @@ class TwitchAPI:
         self.AUTH_URL = 'https://id.twitch.tv/oauth2/token'
         if log_name is None:
             log_name = "api_usage.log"
-        if log_path is None:
-            log_path = "./"
+        if log_path is None:  # default to the directory with main.py
+            log_path = path.join(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))), "logs")
         self.logfile = path.join(log_path, log_name)
         self.reset_log()
 
