@@ -16,7 +16,6 @@ class Events(Extension):
         self.ready, self.my_guilds = False, []
         self._bot = bot
         self.SHARD_ID = kwargs['shardid']
-        self.TOTAL_SHARDS = kwargs['totalshards']
         self.discord_tools = kwargs['discordtools']
         self._db = kwargs['db']
 
@@ -78,7 +77,6 @@ class Events(Extension):
             self.ready = True
             self.logger.info(f"events cog logged in as {self._bot.user.username}")
             self.logger.info(f"running as shard: {self.SHARD_ID}")
-            self.logger.info(f"total shards: {self.TOTAL_SHARDS}")
             self.logger.info(f"my guilds: {len(self._bot.guilds)}")
             self.logger.info("--------------")
             my_guilds = [guild.id for guild in self._bot.guilds]
