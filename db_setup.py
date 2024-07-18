@@ -32,6 +32,11 @@ async def create_database_if_not_exists():
                    "guild_id BIGINT,"
                    "guild_name TEXT,"
                    "PRIMARY KEY (guild_id))")
+    d.logger.info(f"Creating table 'twitch_channels'")
+    cursor.execute("CREATE TABLE IF NOT EXISTS twitch_channels ("
+                   "channel_id BIGINT,"
+                   "user_name VARCHAR(100),"
+                   "PRIMARY KEY (user_id))")
     cursor.close()
     cnx.close()
 
