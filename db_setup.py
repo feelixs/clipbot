@@ -23,6 +23,7 @@ async def create_database_if_not_exists():
     cursor.execute("CREATE TABLE IF NOT EXISTS guild_twitch_channel ("
                    "guild_id BIGINT NOT NULL,"
                    "channel_id BIGINT NOT NULL,"
+                   "discord_channel BIGINT NOT NULL,"
                    "alert_type INT NOT NULL,"
                    "has_left BOOLEAN NOT NULL,"
                    "settings TEXT,"

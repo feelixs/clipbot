@@ -1,5 +1,6 @@
 from src.misc.database.connection import PooledConnection
 from interactions.models.discord.guild import Guild
+from src.misc.twitch import UserInfo
 from src.env import DbCredentials
 from datetime import datetime, timezone
 from typing import Union, Tuple
@@ -18,6 +19,14 @@ class Database:
     async def connect(self, loop):
         self.logger.info('connecting to database...')
         await self.cnx.connect(loop)
+
+    async def store_guild_twitch_pair(self, guild: Union[Guild, int], user: UserInfo, discord_chn: int, alert_type: int):
+        if isinstance(guild, Guild):
+            guild = int(guild.id)
+        q = "INSERT INTO guild_twitch_channel (guild_id, channel_id, channel_name, discord_channel, alert_type) " \
+            "values (%s, %s, %s, %s, %s)"
+        param = [guild, user.id, user.username, discord_chn, alert_type]
+        await self.cnx.execute_query(q, values=param)
 
     async def add_guild(self, guild: Union[Guild, Tuple[int, str]]):
         if isinstance(guild, Guild):
@@ -79,6 +88,6 @@ class Database:
         await self.cnx.execute_query(update_guilds_query, values=[which])
 
     async def get_guild_clip_alert_chn(self, guild_id: int, channel_id: int, alert_type: int):
-        q = "select clip_alert_channel from guild_twitch_channel where "\
+        q = "select discord_channel from guild_twitch_channel where "\
                                             f"guild_id = %s and channel_id = %s and alert_type = %s"
         return await self.cnx.execute_query(q, values=[guild_id, channel_id, alert_type], scaler=True)

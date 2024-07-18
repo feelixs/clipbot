@@ -3,6 +3,9 @@ from interactions.api.events.discord import GuildJoin, GuildLeft
 from datetime import datetime
 from typing import Union, Optional
 import logging
+from src.misc.twitch import User
+from src.misc.errors import TwitchObjNotExists
+from aiomysql import IntegrityError
 
 
 class Events(Extension):
@@ -16,6 +19,7 @@ class Events(Extension):
         self.ready, self.my_guilds = False, []
         self._bot = bot
         self.SHARD_ID = kwargs['shardid']
+        self._twitchTools = kwargs['twitchtools']
         self.discord_tools = kwargs['discordtools']
         self._db = kwargs['db']
 
@@ -71,6 +75,63 @@ class Events(Extension):
     async def log(self, ctx: SlashContext, user: str, channel: str, year: int = None, month: int = None):
         message = await self.discord_tools.generate_twitch_log(ctx, user, channel, year, month)
 
+    @slash_command(name="add", description="Add new clip alert",
+                   options=[SlashCommandOption(name="user",
+                                               description="the Twitch channel to monitor",
+                                               required=True,
+                                               type=OptionType.STRING),
+                            SlashCommandOption(name="channel",
+                                               description="the Discord channel to send alerts",
+                                               required=True,
+                                               type=OptionType.STRING),
+                            SlashCommandOption(name="type",
+                                               description="alert type (trending clips or new clips)",
+                                               required=False,
+                                               type=OptionType.INTEGER)
+                            ])
+    async def add(self, ctx: SlashContext, user: str, channel: str, type: int, send=True):
+        try:
+            stored_channel: User = await self._twitchTools.find_user(user)
+        except TwitchObjNotExists:
+            await ctx.send(f"The channel `twitch.tv/{user}` doesn't exist")
+            return
+        try:
+            await self._db.store_guild_twitch_pair(ctx.guild, stored_channel, channel, type)
+            await ctx.send(f"{user} added successfully!")
+        except IntegrityError:
+            if send:
+                # already stored
+                await ctx.send(f"{user} is already added!")
+        return stored_channel
+
+    @slash_command(name="remove", description="Remove a clip alert",
+                   options=[SlashCommandOption(name="user",
+                                               description="the Twitch channel",
+                                               required=True,
+                                               type=OptionType.STRING),
+                            SlashCommandOption(name="channel",
+                                               description="the Discord channel to send alerts",
+                                               required=True,
+                                               type=OptionType.STRING),
+                            SlashCommandOption(name="type",
+                                               description="alert type (trending clips or new clips)",
+                                               required=False,
+                                               type=OptionType.INTEGER)
+                            ])
+    async def remove(self, ctx: SlashContext, user: str, channel: str, type: int):
+        try:
+            stored_channel: User = await self._twitchTools.find_user(user)
+        except TwitchObjNotExists:
+            await ctx.send(f"The channel `twitch.tv/{user}` doesn't exist")
+            return
+        try:
+            await self._db.cnx.execute_query("DELETE FROM guild_twitch_channel WHERE guild_id = %s AND channel_id = %s AND discord_channel = %s AND alert_type = %s;",
+                                             values=[ctx.guild.id, stored_channel.id, channel, type])
+        except IntegrityError:
+            await ctx.send(f"Operation failed!\nNo clip alerts were found for twitch.tv/{channel}")
+            return
+        await ctx.send(f"Operation success!\nNo more clip alerts will be sent for twitch.tv/{channel}")
+
     @listen()
     async def on_ready(self):
         if not self.ready:
@@ -82,6 +143,8 @@ class Events(Extension):
             my_guilds = [guild.id for guild in self._bot.guilds]
             if self.catchup_leaves:
                 stored_guilds = await self._db.cnx.execute_query("select guild_id, has_left from guild_twitch_channel")
+                if stored_guilds is None:
+                    return
                 for guild in stored_guilds:
                     guild, hasleft = guild[0], guild[1]
                     if guild not in my_guilds and hasleft != 1:
