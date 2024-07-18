@@ -7,9 +7,7 @@ from src.misc.discord import DiscordTools
 from src.misc.twitch import UserInfo, Game
 from src.misc.cache import ClipCache, TrendingClipCache
 from src.misc.errors import TwitchObjNotExists, BotRejoinedGuild
-
-
-DEFAULT_TRENDING_INTERVAL = 28  # in days
+from src.env import DEFAULT_TRENDING_INTERVAL
 
 
 class ClipTasks(DiscordTools):

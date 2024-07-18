@@ -1,14 +1,10 @@
-from interactions import listen, Task, IntervalTrigger, Embed, Button, ButtonStyle, slash_command, SlashContext, Extension
+from interactions import listen, Task, IntervalTrigger, Embed, slash_command, SlashContext, Extension
 from interactions.models.discord import Snowflake
 from src.misc.tasks import ClipTasks, DEFAULT_TRENDING_INTERVAL
-from datetime import datetime
 from asyncio import gather
 from src.misc.twitch import TwitchAPI, TwitchTools
-from src.env import TwitchCreds, LOG_PATH
+from src.env import TwitchCreds, LOG_PATH, DEFAULT_WAIT
 import logging
-
-
-DEFAULT_WAIT = 60 * 5  # 5 minutes
 
 
 class ClipAlerts(Extension):

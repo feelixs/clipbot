@@ -5,6 +5,13 @@ LOG_PATH = os.path.dirname(os.path.abspath(__file__))
 
 token = os.getenv("CLYPPY_TOKEN")  # discord bot token
 
+# how many seconds to wait between clip refreshes
+DEFAULT_WAIT = 60 * 2  # 2 minutes
+
+
+# the number of days to sort all trending clips by when checking for new entries
+DEFAULT_TRENDING_INTERVAL = 28  # in days
+
 
 class TwitchCreds:
     secret = os.getenv("CLYPPY_TWITCH_SECRET")  # twitch api project secret + id
