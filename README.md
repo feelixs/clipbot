@@ -12,4 +12,4 @@ Currently this repo only contains code for running a Clip Alerts instance. To se
 4. Modify `src/env.py` with the password you created in the previous step, inserting it into the `DbCredentials -> passw` variable.
 5. Run the cmd `sudo /usr/local/mysql/support-files/mysql.server start` (macOS) or `net start MySQL90` (or `MySQL[version]`) (Windows).
 6. Now run `db_setup.py` - it should connect to the database you just installed and perform all necessary setup.
-7.
+7. Finally run `main.py` to start the bot. You should now be able to interact with its commands after adding it to your server!
