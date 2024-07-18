@@ -4,25 +4,16 @@ from src.env import DbCredentials
 import asyncio
 import mysql.connector
 
-
-DB_PASS = "12345678"  # replace with the password of the root user
-DB_NAME = "clyppydb"  # name the database anything you want (if you change it make sure to also update it in env.py
-
 creds = DbCredentials()
-creds.username = "root"
-creds.passw = DB_PASS
-creds.port = 3306
-creds.host = "localhost"
-creds.dbname = DB_NAME
 d = Database(creds, maxsize=50, pool_name="CLYPPY_POOL")
 
 
 async def create_database_if_not_exists():
-    cnx = mysql.connector.connect(user="root", password=DB_PASS, host="localhost")
+    cnx = mysql.connector.connect(user="root", password=creds.passw, host="localhost")
     cursor = cnx.cursor()
-    d.logger.info(f"Creating database {DB_NAME}")
-    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
-    cursor.execute(f"USE {DB_NAME}")
+    d.logger.info(f"Creating database {creds.dbname}")
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {creds.dbname}")
+    cursor.execute(f"USE {creds.dbname}")
     d.logger.info(f"Creating table 'guild_twitch_channel'")
     cursor.execute("CREATE TABLE IF NOT EXISTS guild_twitch_channel ("
                    "guild_id BIGINT,"
