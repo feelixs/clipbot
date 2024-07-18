@@ -67,7 +67,7 @@ class ClipAlerts(Extension):
             clip_embed.description = "None"
         await ctx.send(embeds=[clip_embed, Embed(title="Information", description="Use `/add` and `/remove` to modify your clip alerts:\n\n"
                                                                                   "`user` the twitch channel to get alerts for\n"
-                                                                                  "'channel` the discord channel ID where the alert will be sent\n"
+                                                                                  "`channel` the discord channel ID where the alert will be sent\n"
                                                                                   "`type` 0 = new clip alert, 1 = trending clip alert"), Embed(title="More Help", description="**[Get Help!](https://discord.gg/3vBzVdFEGV)**")], delete_after=600)
 
     async def my_task(self):
