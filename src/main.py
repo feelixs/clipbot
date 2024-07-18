@@ -22,6 +22,7 @@ DISCORD_TOOLS = DiscordTools(Bot, DB, logger, twitchtools=TWITCH_TOOLS)
 async def main():
     Bot.load_extension('cogs.clip_alerts', db=DB, twitchtools=TWITCH_TOOLS, discordtools=DISCORD_TOOLS)
     Bot.load_extension('cogs.events', db=DB, twitchtools=TWITCH_TOOLS, discordtools=DISCORD_TOOLS)
+    await DB.connect(asyncio.get_running_loop())
     await Bot.astart(token=token)
 
 
