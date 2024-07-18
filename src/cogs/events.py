@@ -18,7 +18,6 @@ class Events(Extension):
         self.CHANGE_PRESENCE_EVERY = 10
         self.ready, self.my_guilds = False, []
         self._bot = bot
-        self.SHARD_ID = kwargs['shardid']
         self._twitchTools = kwargs['twitchtools']
         self.discord_tools = kwargs['discordtools']
         self._db = kwargs['db']
@@ -137,7 +136,6 @@ class Events(Extension):
         if not self.ready:
             self.ready = True
             self.logger.info(f"events cog logged in as {self._bot.user.username}")
-            self.logger.info(f"running as shard: {self.SHARD_ID}")
             self.logger.info(f"my guilds: {len(self._bot.guilds)}")
             self.logger.info("--------------")
             my_guilds = [guild.id for guild in self._bot.guilds]

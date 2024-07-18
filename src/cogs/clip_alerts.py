@@ -4,7 +4,6 @@ from src.misc.tasks import ClipTasks, DEFAULT_TRENDING_INTERVAL
 from datetime import datetime
 from asyncio import gather
 from src.misc.twitch import TwitchAPI, TwitchTools
-from time import time
 from src.env import TwitchCreds, LOG_PATH
 import logging
 
@@ -19,17 +18,16 @@ class ClipAlerts(Extension):
 
         self._bot = bot
         self._clip_alert_types = [0, 1]
-        self.SHARD_ID = kwargs['shardid']
         self._db = kwargs['db']
         self._twitchApi = TwitchAPI(key=TwitchCreds.id, secret=TwitchCreds.secret,
                                     logger=self.logger,
                                     log_path=LOG_PATH,
-                                    log_name="twitch-api-clips-usage-shard" + str(self.SHARD_ID) + ".log")
+                                    log_name="twitch-api-clips-usage.log")
         self.twitch_tools = TwitchTools(self._twitchApi)
         self.discord_tools = kwargs['discordtools']
         self.discord_misc = ClipTasks(bot, self._db, self.logger, self.twitch_tools,
                                       log_path=LOG_PATH,
-                                      log_name="twitch-api-clips-usage-shard-" + str(self.SHARD_ID) + ".log")
+                                      log_name="twitch-api-clips-usage.log")
 
         try:
             self.catchup: bool = kwargs['catchup']
@@ -69,13 +67,8 @@ class ClipAlerts(Extension):
             clip_embed.description = "None"
 
     async def my_task(self):
-        start = time()
-        # only run for the guilds this shard is in
         tasks = []
         for guild in self._bot.guilds:
-            if self._bot.get_shard_id(int(guild.id)) != self.SHARD_ID:
-                self.logger.info(f"skipping guild {guild.id} ({guild.name}) because it's not in this shard")
-                continue
             twitch_channels = await self._db.fetch_twitch_channels(guild.id, include_has_left=True, include_settings=True)
             # alert type = 0 new clips, 1 = new trending clip
             if twitch_channels is None:
@@ -103,14 +96,11 @@ class ClipAlerts(Extension):
                 task = self.discord_misc.clip_alerts(guild, channel, alert_type, chn_ctx, use_embed, trending_interval, is_game, has_left)
                 tasks.append(task)
         await gather(*tasks)
-        # if time.time() - start > args.wait:
-        self.logger.info(f"(SHARD {self.SHARD_ID}) took {time() - start} secs")  # after it takes more than --wait we should add more shards
 
     @listen()
     async def on_startup(self):
         self.task.start()
         self.logger.info(f"clips cog logged in as {self._bot.user.username}")
-        self.logger.info(f"shard id: {self.SHARD_ID}")
         self.logger.info(f"my guilds: {len(self._bot.guilds)}")
         self.logger.info("--------------")
         if not self.catchup:

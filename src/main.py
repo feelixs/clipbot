@@ -20,9 +20,8 @@ DISCORD_TOOLS = DiscordTools(Bot, DB, logger, twitchtools=TWITCH_TOOLS)
 
 
 async def main():
-    Bot.load_extension('cogs.clip_alerts', shardid=SHARD_ID, db=DB, twitchtools=TWITCH_TOOLS,
-                       discordtools=DISCORD_TOOLS)
-    Bot.load_extension('cogs.events', shardid=SHARD_ID, db=DB, discordtools=DISCORD_TOOLS)
+    Bot.load_extension('cogs.clip_alerts', db=DB, twitchtools=TWITCH_TOOLS, discordtools=DISCORD_TOOLS)
+    Bot.load_extension('cogs.events', db=DB, twitchtools=TWITCH_TOOLS, discordtools=DISCORD_TOOLS)
     await Bot.astart(token=token)
 
 
