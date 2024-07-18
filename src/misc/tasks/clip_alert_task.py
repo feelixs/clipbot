@@ -42,6 +42,7 @@ class ClipTasks(DiscordTools):
                 except:
                     try:
                         channel_user = await self.TWITCH_TOOLS.find_user(query=None, id=channel)
+                        await self.DB.cnx.execute_query("INSERT INTO twitch_channels (channel_id, user_name) VALUES (%s, %s)", [channel_user.id, channel_user.username])
                     except TwitchObjNotExists:
                         return
             else:
