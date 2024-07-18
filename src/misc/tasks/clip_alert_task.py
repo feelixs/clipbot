@@ -7,9 +7,7 @@ from src.misc.discord import DiscordTools
 from src.misc.twitch import UserInfo, Game
 from src.misc.cache import ClipCache, TrendingClipCache
 from src.misc.errors import TwitchObjNotExists, BotRejoinedGuild
-
-
-DEFAULT_TRENDING_INTERVAL = 28  # in days
+from src.env import DEFAULT_TRENDING_INTERVAL
 
 
 class ClipTasks(DiscordTools):
@@ -28,7 +26,7 @@ class ClipTasks(DiscordTools):
                 if has_left:
                     raise BotRejoinedGuild  # reset last_timestamp on rejoins
                 last_clip_sent = await self.cache.pull_last_clip_timestamp(guild, channel, alert_type)
-            except BotRejoinedGuild:
+            except (BotRejoinedGuild, ValueError):
                 last_clip_sent = datetime.utcnow()
                 await self.cache.set_last_clip_timestamp(guild, channel, alert_type, last_clip_sent)
             last_clip_sent = last_clip_sent.replace(tzinfo=timezone.utc)
@@ -44,6 +42,7 @@ class ClipTasks(DiscordTools):
                 except:
                     try:
                         channel_user = await self.TWITCH_TOOLS.find_user(query=None, id=channel)
+                        await self.DB.cnx.execute_query("INSERT INTO twitch_channels (channel_id, user_name) VALUES (%s, %s)", [channel_user.id, channel_user.username])
                     except TwitchObjNotExists:
                         return
             else:
@@ -56,7 +55,6 @@ class ClipTasks(DiscordTools):
                         channel_user = await Game(id=channel, api=self.TWITCH_API).fetch()
                     except TwitchObjNotExists:
                         return
-
             if trending_interval is None:
                 trending_interval = DEFAULT_TRENDING_INTERVAL
             if use_embeds is None:
@@ -80,20 +78,15 @@ class ClipTasks(DiscordTools):
                     usr = f"`{usr}`"
                 if alert_type == 1:
                     msg_to_be_sent = f"A clip from {usr} is now trending"
-                    type_clip = "Trending clip"
                     views_refreshing = True
                 elif alert_type == 0:
                     msg_to_be_sent = f"A new clip has been created from {usr}"
-                    type_clip = "New clip"
                 else:
-                    return  # if it's set to stream alerts, don't check for new clips
+                    return
                 newclips = False
                 clips_in_msg, clip_embeds, compnts = 0, [], []
-
-                #print("last", last_clip_sent)
                 theclipiwillsendandstopat = last_clip_sent
                 msgcontent = ""
-
                 all_sent_clips = []
                 for clip in latest_clips:
                     if last_clip_sent < clip.created_at:
@@ -107,10 +100,8 @@ class ClipTasks(DiscordTools):
                             clip_embeds.append(this_embed)
                         else:
                             msgcontent += self.create_clip_msg(clip, msg_to_be_sent)
-
                         clips_in_msg += 1
                         theclipiwillsendandstopat = clip.created_at
-                        #print(f"(SHARD {self.bot.get_shard_id(guild.id)})", guild.name, alert_type, "added new for", clip.broadcaster_name)
                         all_sent_clips.append(clip)
                         if clips_in_msg == 10:  # discord doesn't allow more than 10 embeds per msg
                             # any clips that would have been added to this message will be added in the next task
@@ -118,21 +109,9 @@ class ClipTasks(DiscordTools):
                 if newclips:
                     await self.cache.set_last_clip_timestamp(guild, channel, alert_type, theclipiwillsendandstopat)
                     if Permissions.SEND_MESSAGES in chn_ctx.permissions_for(guild.me) and Permissions.EMBED_LINKS in chn_ctx.permissions_for(guild.me) and Permissions.MENTION_EVERYONE in chn_ctx.permissions_for(guild.me):
-                        discord_msg = await chn_ctx.send(msgcontent, embeds=clip_embeds, components=compnts)
-                        now = datetime.utcnow().replace(tzinfo=timezone.utc)
-                        for s in range(len(all_sent_clips)): # insert the sent clips into the db
-                            this = all_sent_clips[s]
-                            if alert_type == 0:
-                                await self.DB.cnx.execute_query("INSERT INTO sent_clips (guild_id, channel_id, alert_type, clip_id, clip_title, discord_msg_id, sent_when, msg_clip_index) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                                                                values=[guild.id, channel, alert_type, this.id, this.title, discord_msg.id, now, s])
-                        # revert the "invalid channel permissions" warning for this alert in the db
-                        await self.DB.cnx.execute_query("update guild_twitch_channel set permissions_valid = %s where guild_id = %s and channel_id = %s and alert_type = %s",
-                                                        values=[True, guild.id, channel, alert_type])
+                        await chn_ctx.send(msgcontent, embeds=clip_embeds, components=compnts)
                     else:
-                        await post_to_hook(ERR_WEBHOOK, f"Invalid channel permissions detected, will not send new clips for {channel_user.display_name} in #{chn_ctx.name}", guild)
-                        await self.DB.cnx.execute_query("update guild_twitch_channel set permissions_valid = %s where guild_id = %s and channel_id = %s and alert_type = %s",
-                                                        values=[False, guild.id, channel, alert_type])
-                        print(f"{guild.name} - Invalid channel permissions detected, will not send new clips for {channel_user.display_name}")
+                        self.logger.info(f"{guild.name} - Invalid channel permissions detected, will not send new clips for {channel_user.display_name}")
             self.trending_cache.trim_len()
         except:
-            print(traceback.format_exc())
+            self.logger.error(traceback.format_exc())
