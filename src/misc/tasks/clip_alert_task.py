@@ -28,7 +28,7 @@ class ClipTasks(DiscordTools):
                 if has_left:
                     raise BotRejoinedGuild  # reset last_timestamp on rejoins
                 last_clip_sent = await self.cache.pull_last_clip_timestamp(guild, channel, alert_type)
-            except BotRejoinedGuild:
+            except (BotRejoinedGuild, ValueError):
                 last_clip_sent = datetime.utcnow()
                 await self.cache.set_last_clip_timestamp(guild, channel, alert_type, last_clip_sent)
             last_clip_sent = last_clip_sent.replace(tzinfo=timezone.utc)
