@@ -106,4 +106,3 @@ class ClipAlerts(Extension):
         if not self.catchup:
             self.logger.info("will not catchup for new clips")
             await self._db.cnx.execute_query("UPDATE guild_twitch_channel SET last_clip_sent = NULL where alert_type = 0")
-        await self._db.cnx.execute_query("UPDATE procstats set started_at = %s where process_name = 'clips'", values=[datetime.utcnow()])

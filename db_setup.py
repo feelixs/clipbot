@@ -8,7 +8,7 @@ import logging
 
 DB_PASS = "12345678"  # replace with the password of the root user
 DB_HOST = "127.0.0.1"  # replace with your computer's IP
-DB_NAME = "clyppydb"  # name the database anything you want
+DB_NAME = "clyppydb"  # name the database anything you want (if you change it make sure to also update it in env.py
 
 
 logger = logging.getLogger("dbsetup")
@@ -21,26 +21,20 @@ async def create_database_if_not_exists():
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
     cursor.execute(f"USE {DB_NAME}")
     cursor.execute("CREATE TABLE IF NOT EXISTS guild_twitch_channel ("
-                   "guild_id BIGINT NOT NULL,"
-                   "channel_id BIGINT NOT NULL,"
-                   "discord_channel BIGINT NOT NULL,"
-                   "alert_type INT NOT NULL,"
-                   "has_left BOOLEAN NOT NULL,"
-                   "settings TEXT,"
+                   "guild_id BIGINT,"
+                   "channel_id BIGINT,"
+                   "channel_name VARCHAR(255),"
+                   "discord_channel BIGINT,"
+                   "alert_type INT,"
+                   "has_left BOOLEAN,"
+                   "settings VARCHAR(255),"
                    "trending_interval INT,"
                    "is_game BOOLEAN,"
                    "last_clip_sent TIMESTAMP,"
                    "PRIMARY KEY (guild_id, channel_id, alert_type))")
-    cursor.execute("CREATE TABLE IF NOT EXISTS twitch_channel ("
-                   "channel_id BIGINT NOT NULL,"
-                   "channel_name TEXT NOT NULL,"
-                   "game_id BIGINT NOT NULL,"
-                   "game_name TEXT NOT NULL,"
-                   "is_game BOOLEAN,"
-                   "PRIMARY KEY (channel_id))")
     cursor.execute("CREATE TABLE IF NOT EXISTS guilds ("
-                   "guild_id BIGINT NOT NULL,"
-                   "guild_name TEXT NOT NULL,"
+                   "guild_id BIGINT,"
+                   "guild_name TEXT,"
                    "PRIMARY KEY (guild_id))")
     cursor.close()
     cnx.close()

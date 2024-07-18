@@ -12,4 +12,5 @@ Currently this repo only contains code for running a Clip Alerts instance. To se
 4. Modify `db_setup.py` with the password you created in the previous step, inserting it into the DB_PASS variable.
 5. Run the cmd `sudo /usr/local/mysql/support-files/mysql.server start` (macOS) or `net start MySQL90` (or `MySQL[version]`) (Windows)
 6. Now run `db_setup.py`
-7. 
+7. Remember to update your database credentials in `src/env.py` as well!
+8. 

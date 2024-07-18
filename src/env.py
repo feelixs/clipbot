@@ -12,8 +12,10 @@ class TwitchCreds:
 
 
 class DbCredentials:
-    username = os.getenv("CLYPPY_DB_USER")
-    passw = os.getenv("CLYPPY_DB_PASS")
-    host = os.getenv("CLYPPY_DB_HOST")
-    dbname = os.getenv("CLYPPY_DB_NAME")
-    port = os.getenv("CLYPPY_DB_PORT")
+    # update the password to what you set when you installed mysql
+    passw = '12345678'
+    # you can probably leave the rest as is
+    username = 'root'
+    dbname = 'clyppydb'
+    host = 'localhost'
+    port = '3306'
