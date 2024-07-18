@@ -36,7 +36,7 @@ async def create_database_if_not_exists():
     cursor.execute("CREATE TABLE IF NOT EXISTS twitch_channels ("
                    "channel_id BIGINT,"
                    "user_name VARCHAR(100),"
-                   "PRIMARY KEY (user_id))")
+                   "PRIMARY KEY (channel_id))")
     cursor.close()
     cnx.close()
 
