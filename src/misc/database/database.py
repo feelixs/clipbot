@@ -20,6 +20,12 @@ class Database:
         self.logger.info('connecting to database...')
         await self.cnx.connect(loop)
 
+    async def close(self):
+        self.logger.info('closing database connection...')
+        self.cnx.pool.close()
+        await self.cnx.pool.wait_closed()
+        self.logger.info('Connection closed')
+
     async def store_guild_twitch_pair(self, guild: Union[Guild, int], user: UserInfo, discord_chn: int, alert_type: int):
         if isinstance(guild, Guild):
             guild = int(guild.id)
