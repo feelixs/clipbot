@@ -104,11 +104,11 @@ class Events(Extension):
             return
         try:
             await self._db.store_guild_twitch_pair(ctx.guild, stored_channel, channel, type)
-            await ctx.send(f"Clip Alert for {user} ({typestr}) added successfully!")
+            await ctx.send(f"Clip Alert for https://twitch.tv/{user} ({typestr}) added successfully!")
         except IntegrityError:
             if send:
                 # already stored
-                await ctx.send(f"Clip Alert for {user} ({typestr}) is already added!")
+                await ctx.send(f"Clip Alert for https://twitch.tv/{user} ({typestr}) is already added!")
 
     @slash_command(name="remove", description="Remove a clip alert",
                    options=[SlashCommandOption(name="user",
@@ -122,6 +122,13 @@ class Events(Extension):
                             ])
     async def remove(self, ctx: SlashContext, user: str, type: int = 0):
         user = user.lower()
+        if type == 1:
+            typestr = "Trending"
+        elif type == 0:
+            typestr = "New"
+        else:
+            await ctx.send("Invalid type. Must be 1 (Trending) or 0 (New)")
+            return
         try:
             stored_channel: User = await self._twitchTools.find_user(user)
         except TwitchObjNotExists:
@@ -131,9 +138,9 @@ class Events(Extension):
             await self._db.cnx.execute_query("DELETE FROM guild_twitch_channel WHERE guild_id = %s AND channel_id = %s AND alert_type = %s;",
                                              values=[ctx.guild.id, stored_channel.id, type])
         except IntegrityError:
-            await ctx.send(f"Operation failed!\nNo clip alerts were found for twitch.tv/{user}")
+            await ctx.send(f"No {typestr} Clip alerts were found for https://twitch.tv/{user} to begin with")
             return
-        await ctx.send(f"Operation success!\nNo more clip alerts will be sent for twitch.tv/{user}")
+        await ctx.send(f"Operation success!\nNo more {typestr} Clip alerts will be sent for https://twitch.tv/{user}")
 
     @listen()
     async def on_ready(self):
