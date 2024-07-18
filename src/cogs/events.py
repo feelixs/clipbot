@@ -109,7 +109,6 @@ class Events(Extension):
             if send:
                 # already stored
                 await ctx.send(f"Clip Alert for {user} ({typestr}) is already added!")
-        return stored_channel
 
     @slash_command(name="remove", description="Remove a clip alert",
                    options=[SlashCommandOption(name="user",
