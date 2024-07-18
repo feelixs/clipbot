@@ -25,5 +25,5 @@ async def main():
     await DB.connect(asyncio.get_running_loop())
     await Bot.astart(token=token)
 
-
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
