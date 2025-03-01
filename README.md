@@ -1,4 +1,4 @@
-## Clyppy Discord Bot (Public Release)
+## Twitch Clip Alert Discord Bot
 
 ## Instructions:
 
