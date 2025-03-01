@@ -12,7 +12,7 @@ intent = Intents.DEFAULT
 Bot = Client(intents=intent)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("main.py")
-DB = Database(maxsize=50, pool_name="CLYPPY_POOL")
+DB = Database(maxsize=50, pool_name="ClipBotPool")
 
 TWITCH_API = TwitchAPI(key=TwitchCreds.id, secret=TwitchCreds.secret, logger=logger, log_path=LOG_PATH, log_name="twitch-api-all-usage-shard"+str(SHARD_ID)+".log")
 TWITCH_TOOLS = TwitchTools(TWITCH_API)

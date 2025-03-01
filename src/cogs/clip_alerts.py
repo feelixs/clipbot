@@ -35,7 +35,7 @@ class ClipAlerts(Extension):
             self.wait: int = DEFAULT_WAIT
         self.task = Task(self.my_task, IntervalTrigger(seconds=self.wait))
 
-    @slash_command(name="alerts", description="View all CLYPPY Alerts in this server")
+    @slash_command(name="alerts", description="View all alerts in this server")
     async def alerts(self, ctx: SlashContext):
         added = await self._db.cnx.execute_query("select channel_name, alert_type, discord_channel, settings, trending_interval from guild_twitch_channel where guild_id = %s", [int(ctx.guild.id)])
         clip_embed = Embed(title="Twitch Clip Alerts")

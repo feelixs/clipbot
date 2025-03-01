@@ -125,7 +125,7 @@ class DiscordTools:
             return await ctx.send("An error occurred retrieving Twitch logs, please contact out support team if the issue persists", ephemeral=True)
 
     async def create_clip_embed(self, clip: Clip, description: str, add_img: bool = True, refresh_views=False):
-        this_embed = Embed(title=f"**\u200b{clip.title}**", url=f"https://clyppy.com/clips/{clip.id}", description=description)
+        this_embed = Embed(title=f"**\u200b{clip.title}**", description=description)
         this_embed.add_field(name="Created", value=f"<t:{int(clip.created_at.timestamp())}>", inline=True)
         this_embed.add_field(name="Creator", value=f"[\u200b{clip.creator_name}](https://twitch.tv/{clip.creator_name})", inline=True)
         this_embed.add_field(name="Duration", value=f"{clip.duration}s", inline=True)

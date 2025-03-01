@@ -5,7 +5,7 @@ import asyncio
 import mysql.connector
 
 creds = DbCredentials()
-d = Database(creds, maxsize=50, pool_name="CLYPPY_POOL")
+d = Database(creds, maxsize=50, pool_name="ClipBotPool")
 
 
 async def create_database_if_not_exists():
